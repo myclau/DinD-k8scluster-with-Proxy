@@ -12,7 +12,7 @@ chmod +x dind-cluster-v1.8.sh
 
 [ "$(dpkg -s unzip | grep Status)" != "Status: install ok installed" ] && sudo apt install unzip -y
 wget https://github.com/myclau/DinD-k8scluster-with-Proxy/archive/master.zip
-unzip master.zip -d ~
+unzip -o master.zip -d ~
 
 cd DinD-k8scluster-with-Proxy-master/nginx-proxy
 . proxy-run.sh
