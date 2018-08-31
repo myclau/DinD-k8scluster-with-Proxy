@@ -10,7 +10,23 @@ $ apt-get install apt-transport-https ca-certificates curl software-properties-c
 $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 $ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs) stable"
 $ apt-get install docker-ce -y
+
+$ #login again
 $ usermod -aG docker $(whoami)
+```
+or install script for linux
+
+```shell
+$ sudo apt install unzip
+$ wget https://github.com/myclau/DinD-k8scluster-with-Proxy/archive/master.zip
+$ unzip master.zip -d ~
+$ cd DinD-k8scluster-with-Proxy-master/install-script
+$ . install-docker.sh
+$ exit 
+
+$ #login again
+$ usermod -aG docker $(whoami)
+
 ```
 Install kubectl
 --------------
@@ -47,7 +63,10 @@ Set up Proxy with nginx
 ==========
 checkout script and config file into cluster host
 ```shell
-$ cd nginx-proxy
+$ sudo apt install unzip
+$ wget https://github.com/myclau/DinD-k8scluster-with-Proxy/archive/master.zip
+$ unzip master.zip -d ~
+$ cd DinD-k8scluster-with-Proxy-master/nginx-proxy
 $ . buildscript.sh
 Sending build context to Docker daemon  4.096kB
 Step 1/3 : From nginx:1.15.1
@@ -79,3 +98,51 @@ Remark
 =======
 
 if you want to clean the all
+
+Assume you check out the script in home dir
+```shell
+$ wget https://github.com/myclau/DinD-k8scluster-with-Proxy/archive/master.zip
+$ unzip master.zip -d ~
+```
+```shell
+$ cd ~/DinD-k8scluster-with-Proxy-master/nginx-proxy
+$ ./proxy-clean.sh
+nginx-proxy
+nginx-proxy
+$ cd ~
+$ ./dind-cluster-v1.8.sh clean
+WARNING: No swap limit support
+WARNING: No swap limit support
+WARNING: No swap limit support
+WARNING: No swap limit support
+* Removing container: f9fcad196bd2
+f9fcad196bd2
+* Removing container: f446476cf1d6
+f446476cf1d6
+* Removing container: 0166f65c85b8
+0166f65c85b8
+* Removing volume: kubeadm-dind-kube-master
+kubeadm-dind-kube-master
+kubeadm-dind-net
+```
+
+if you want to start the cluster and proxy after restart
+Start in this sequence:
+kube-master >  nodes > nginx-proxy
+```shell
+$ docker ps -a
+CONTAINER ID        IMAGE                                COMMAND                  CREATED             STATUS                            PORTS               NAMES
+1c23502eb514        nginx-proxy                          "nginx -g 'daemon of…"   3 minutes ago       Exited (0) About a minute ago                         nginx-proxy
+906e077375f8        mirantis/kubeadm-dind-cluster:v1.8   "/sbin/dind_init sys…"   7 minutes ago       Exited (137) About a minute ago                       kube-node-2
+03d9af5dd43e        mirantis/kubeadm-dind-cluster:v1.8   "/sbin/dind_init sys…"   7 minutes ago       Exited (130) About a minute ago                       kube-node-1
+3d5231374470        mirantis/kubeadm-dind-cluster:v1.8   "/sbin/dind_init sys…"   8 minutes ago       Exited (130) About a minute ago                       kube-master
+$ docker start kube-master
+kube-master
+$ docker start kube-node-1
+kube-node-1
+$ docker start kube-node-2
+kube-node-2
+$ docker start nginx-proxy
+nginx-proxy
+
+```
